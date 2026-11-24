@@ -714,6 +714,22 @@
             color: var(--brand);
         }
 
+        .tutorial-step.active {
+            background: #e4ebff;
+            box-shadow: inset 0 0 0 2px rgba(79, 124, 247, .45);
+        }
+
+        .tutorial-recurrence {
+            margin: -3px 0 10px;
+            padding: 8px 10px;
+            border-left: 3px solid var(--brand);
+            border-radius: 8px;
+            background: #f6f8ff;
+            color: var(--ink);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
         .tutorial-stage {
             display: flex;
             align-items: flex-end;
@@ -961,7 +977,7 @@
             .buttons {
                 flex: 1;
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(3, 1fr);
                 gap: 5px;
                 min-width: 0;
             }
@@ -1018,9 +1034,11 @@
             .peg::after {
                 bottom: -12px;
                 height: 11px;
+                max-width: calc((100vw - 48px) / 3);
             }
 
             .disk {
+                max-width: calc((100vw - 48px) / 3);
                 border-radius: 8px;
                 font-size: 10px;
             }
@@ -1202,13 +1220,14 @@
                 <div class="disk-chips" id="diskChips"></div>
                 <div class="number-input">
                     <button class="decrement" onclick="adjustDiskNum(-1)">−</button>
-                    <input type="number" id="diskNum" min="2" max="10" value="6" onchange="handleDiskNumChange()">
+                    <input type="number" id="diskNum" min="1" max="6" value="6" onchange="handleDiskNumChange()">
                     <button class="increment" onclick="adjustDiskNum(1)">+</button>
                 </div>
             </div>
             <div class="buttons">
                 <button class="btn btn-green" onclick="resetGame()"><span class="ico">↺</span>重新开始</button>
                 <button class="btn btn-gray" onclick="undoMove()"><span class="ico">↩</span>撤回一步</button>
+                <button class="btn btn-primary" id="mainTutorialBtn" onclick="goToTutorial()"><span class="ico">?</span>原理演示</button>
             </div>
         </div>
 
@@ -1287,12 +1306,13 @@
         <div class="modal-content tutorial-content">
             <button type="button" class="close-btn tutorial-close" id="tutorialClose" onclick="closeTutorial()" aria-label="关闭原理演示">&times;</button>
             <h2 id="tutorialTitle">汉诺塔原理演示</h2>
-            <p class="tutorial-lead">以 3 个圆盘为例，用 7 步看清递归思路</p>
+            <p class="tutorial-lead" id="tutorialLead">当前 3 层 · 最少 7 步</p>
             <div class="tutorial-steps">
-                <div class="tutorial-step"><b>第一步</b><br>上面 2 盘：A → B</div>
-                <div class="tutorial-step"><b>第二步</b><br>最大盘：A → C</div>
-                <div class="tutorial-step"><b>第三步</b><br>上面 2 盘：B → C</div>
+                <div class="tutorial-step" id="tutorialStepOne"><b>第一步</b><br>上面 2 盘：A → B</div>
+                <div class="tutorial-step" id="tutorialStepTwo"><b>第二步</b><br>最大盘：A → C</div>
+                <div class="tutorial-step" id="tutorialStepThree"><b>第三步</b><br>上面 2 盘：B → C</div>
             </div>
+            <p class="tutorial-recurrence" id="tutorialRecurrence">递推：每加一层 = 前一层过程 × 2 + 新最大盘移动 1 次。3 层：3 + 1 + 3 = 7 步。</p>
             <div class="tutorial-stage">
                 <div class="tutorial-peg-wrap">
                     <div class="tutorial-peg" id="tutorialPegA"></div>
@@ -1325,8 +1345,8 @@
 
     <script>
         // ===== 常量与状态 =====
-        var DISK_MIN = 2;
-        var DISK_MAX = 10;
+        var DISK_MIN = 1;
+        var DISK_MAX = 6;
         var pegs = { A: [], B: [], C: [] };
         var selectedPeg = null;
         var diskCount = 6;
@@ -1603,21 +1623,22 @@
         }
 
         // ===== 原理演示 =====
-        var tutorialMoves = [
-            { disk: 1, from: 'A', to: 'C', phase: '第一阶段：先把 A 上面的 2 个圆盘移到 B。当前先移 1 号盘。' },
-            { disk: 2, from: 'A', to: 'B', phase: '第一阶段：继续把 2 号盘移到辅助柱 B。' },
-            { disk: 1, from: 'C', to: 'B', phase: '第一阶段完成：1、2 号盘已经按顺序移到 B。' },
-            { disk: 3, from: 'A', to: 'C', phase: '第二阶段完成：最大的 3 号盘已经从 A 移到 C。' },
-            { disk: 1, from: 'B', to: 'A', phase: '第三阶段：把 B 上的 2 个圆盘移到 C，先移开 1 号盘。' },
-            { disk: 2, from: 'B', to: 'C', phase: '第三阶段：把 2 号盘放到 C 柱的 3 号盘上面。' },
-            { disk: 1, from: 'A', to: 'C', phase: '演示完成：3 个圆盘全部有序地移到了 C。更多层数也可以反复套用这三步。' }
-        ];
+        var tutorialDiskCount = 3;
+        var tutorialMoves = [];
         var tutorialStep = 0;
         var tutorialPegs = { A: [1, 2, 3], B: [], C: [] };
         var tutorialTimer = null;
 
+        function buildTutorialMoves(n, from, auxiliary, to, moves) {
+            if (n === 0) return;
+            buildTutorialMoves(n - 1, from, to, auxiliary, moves);
+            moves.push({ disk: n, from: from, to: to });
+            buildTutorialMoves(n - 1, auxiliary, from, to, moves);
+        }
+
         function goToTutorial() {
             closeWinModal();
+            tutorialDiskCount = diskCount;
             resetTutorial();
             document.getElementById('tutorialModal').style.display = 'flex';
         }
@@ -1637,7 +1658,10 @@
         function resetTutorial() {
             stopTutorialPlayback();
             tutorialStep = 0;
-            tutorialPegs = { A: [1, 2, 3], B: [], C: [] };
+            tutorialMoves = [];
+            buildTutorialMoves(tutorialDiskCount, 'A', 'B', 'C', tutorialMoves);
+            tutorialPegs = { A: [], B: [], C: [] };
+            for (var i = 1; i <= tutorialDiskCount; i++) tutorialPegs.A.push(i);
             renderTutorial();
         }
 
@@ -1678,32 +1702,83 @@
             renderTutorial();
         }
 
+        function getTutorialPhase() {
+            var previousTotal = Math.pow(2, tutorialDiskCount - 1) - 1;
+            if (tutorialDiskCount === 1) {
+                return tutorialStep === 0
+                    ? '1 层是基础：只要把第 1 盘从 A 移到 C，共 1 步。'
+                    : '完成：1 层只需 1 步。之后每加一层，都会复用前一层的完整移动方法。';
+            }
+            if (tutorialStep === 0) {
+                return '把 ' + tutorialDiskCount + ' 层看成“' + (tutorialDiskCount - 1) + ' 层问题 + 第 ' + tutorialDiskCount + ' 盘”：第一阶段先把上面 ' + (tutorialDiskCount - 1) + ' 盘从 A 移到 B，给第 ' + tutorialDiskCount + ' 盘让路。';
+            }
+            if (tutorialStep === tutorialMoves.length) {
+                return '完成：' + previousTotal + ' + 1 + ' + previousTotal + ' = ' + tutorialMoves.length + ' 步。每加一层，都按同样的方法递推。';
+            }
+            if (tutorialStep <= previousTotal) {
+                return '第一阶段（' + tutorialStep + '/' + previousTotal + '）：把上面 ' + (tutorialDiskCount - 1) + ' 盘从 A 移到 B。这里完整复用 ' + (tutorialDiskCount - 1) + ' 层的移动方法。';
+            }
+            if (tutorialStep === previousTotal + 1) {
+                return '第二阶段：上面 ' + (tutorialDiskCount - 1) + ' 盘已在 B，第 ' + tutorialDiskCount + ' 盘从 A 移到 C，只移动这 1 次。';
+            }
+            return '第三阶段（' + (tutorialStep - previousTotal - 1) + '/' + previousTotal + '）：把上面 ' + (tutorialDiskCount - 1) + ' 盘从 B 移到 C，再次复用 ' + (tutorialDiskCount - 1) + ' 层的移动方法。';
+        }
+
         function renderTutorial() {
-            var widths = { 1: 36, 2: 58, 3: 80 };
+            var total = tutorialMoves.length;
+            var diskH = tutorialDiskCount > 3 ? 16 : 20;
+            var gap = tutorialDiskCount > 3 ? 3 : 4;
+            var pegH = Math.max(72, tutorialDiskCount * (diskH + gap) + 40);
+            var minW = tutorialDiskCount === 1 ? 48 : 28;
+            var maxW = 80;
+            var stepW = tutorialDiskCount > 1 ? (maxW - minW) / (tutorialDiskCount - 1) : 0;
+
+            document.getElementById('tutorialLead').textContent = '当前 ' + tutorialDiskCount + ' 层 · 最少 ' + total + ' 步';
+            var previousTotal = Math.pow(2, tutorialDiskCount - 1) - 1;
+            document.getElementById('tutorialRecurrence').textContent = '递推：每加一层 = 前一层过程 × 2 + 新最大盘移动 1 次。' + (tutorialDiskCount === 1
+                ? '1 层：1 步（基础）。'
+                : tutorialDiskCount + ' 层：' + previousTotal + ' + 1 + ' + previousTotal + ' = ' + total + ' 步。');
+            document.getElementById('tutorialStepOne').innerHTML = tutorialDiskCount === 1
+                ? '<b>第一步</b><br>无需移开小盘'
+                : '<b>第一步</b><br>上面 ' + (tutorialDiskCount - 1) + ' 盘：A → B';
+            document.getElementById('tutorialStepTwo').innerHTML = '<b>第二步</b><br>' + tutorialDiskCount + ' 号盘：A → C';
+            document.getElementById('tutorialStepThree').innerHTML = tutorialDiskCount === 1
+                ? '<b>第三步</b><br>演示完成'
+                : '<b>第三步</b><br>上面 ' + (tutorialDiskCount - 1) + ' 盘：B → C';
+
+            var activeStep = tutorialDiskCount === 1 || tutorialStep === previousTotal + 1
+                ? 1
+                : tutorialStep <= previousTotal ? 0 : 2;
+            ['tutorialStepOne', 'tutorialStepTwo', 'tutorialStepThree'].forEach(function (id, index) {
+                document.getElementById(id).classList.toggle('active', index === activeStep);
+            });
+
             ['A', 'B', 'C'].forEach(function (id) {
                 var peg = document.getElementById('tutorialPeg' + id);
                 peg.innerHTML = '';
+                peg.style.height = pegH + 'px';
                 tutorialPegs[id].forEach(function (size) {
                     var disk = document.createElement('div');
                     disk.className = 'tutorial-disk disk-' + size;
                     disk.dataset.disk = size;
-                    disk.style.width = widths[size] + 'px';
+                    disk.style.width = Math.round(minW + (size - 1) * stepW) + 'px';
+                    disk.style.height = diskH + 'px';
+                    disk.style.lineHeight = diskH + 'px';
+                    disk.style.marginTop = gap + 'px';
                     disk.textContent = size;
                     peg.appendChild(disk);
                 });
             });
 
-            document.getElementById('tutorialStepLabel').textContent = '第 ' + tutorialStep + ' / 7 步';
+            document.getElementById('tutorialStepLabel').textContent = '第 ' + tutorialStep + ' / ' + total + ' 步';
             document.getElementById('tutorialMoveLabel').textContent = tutorialStep === 0
                 ? '准备开始'
                 : tutorialMoves[tutorialStep - 1].disk + ' 号盘：' + tutorialMoves[tutorialStep - 1].from + ' → ' + tutorialMoves[tutorialStep - 1].to;
-            document.getElementById('tutorialPhase').textContent = tutorialStep === 0
-                ? '点击“播放”自动演示，也可以用“下一步”逐层观察。'
-                : tutorialMoves[tutorialStep - 1].phase;
+            document.getElementById('tutorialPhase').textContent = getTutorialPhase();
             document.getElementById('tutorialPrev').disabled = tutorialStep === 0;
-            document.getElementById('tutorialNext').disabled = tutorialStep === tutorialMoves.length;
+            document.getElementById('tutorialNext').disabled = tutorialStep === total;
             var playButton = document.getElementById('tutorialPlay');
-            playButton.disabled = tutorialStep === tutorialMoves.length;
+            playButton.disabled = tutorialStep === total;
             playButton.textContent = tutorialTimer ? '暂停' : '播放';
         }
 
