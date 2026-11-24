@@ -654,6 +654,177 @@
             background: #fafbfe;
         }
 
+        /* ---------- 原理演示 ---------- */
+        .tutorial-layer {
+            z-index: 1200;
+        }
+
+        .tutorial-content {
+            width: 600px;
+            max-width: 96vw;
+            max-height: 92vh;
+            max-height: 92dvh;
+            overflow-y: auto;
+            padding: 24px;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .tutorial-content h2 {
+            margin: 0;
+            color: var(--ink);
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .tutorial-lead {
+            margin: 4px 0 12px;
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .tutorial-close {
+            top: 4px;
+            right: 8px;
+            width: 44px;
+            height: 44px;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        .tutorial-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tutorial-step {
+            padding: 8px;
+            border-radius: 10px;
+            background: #f2f5ff;
+            color: var(--ink);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .tutorial-step b {
+            color: var(--brand);
+        }
+
+        .tutorial-stage {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 12px 8px 10px;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #fbfcff, #f1f4ff);
+        }
+
+        .tutorial-peg-wrap {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .tutorial-peg {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 9px;
+            height: 112px;
+            border-radius: 6px 6px 3px 3px;
+            background: linear-gradient(90deg, #a06b40, #e8c896 45%, #f3d9ac 55%, #a06b40);
+        }
+
+        .tutorial-peg::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            width: 82px;
+            max-width: 26vw;
+            height: 9px;
+            border-radius: 6px;
+            background: linear-gradient(180deg, #e9cb98, #b07a45);
+            transform: translateX(-50%);
+        }
+
+        .tutorial-disk {
+            position: relative;
+            z-index: 1;
+            height: 20px;
+            margin-top: 4px;
+            border-radius: 7px;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 20px;
+            text-align: center;
+            box-shadow: inset 0 2px 2px rgba(255, 255, 255, .45), 0 2px 3px rgba(0, 0, 0, .16);
+            transition: width .2s ease;
+        }
+
+        .tutorial-peg-label {
+            margin-top: 14px;
+            color: #8993b1;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .tutorial-status {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 10px;
+            color: var(--brand);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tutorial-phase {
+            min-height: 36px;
+            margin: 5px 0 10px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .tutorial-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 7px;
+        }
+
+        .tutorial-controls button {
+            min-width: 0;
+            min-height: 40px;
+            padding: 7px 5px;
+            border: 1px solid #e2e7f4;
+            border-radius: 9px;
+            background: #fff;
+            color: var(--ink);
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tutorial-controls .tutorial-play {
+            border-color: transparent;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            color: #fff;
+        }
+
+        .tutorial-controls button:disabled {
+            cursor: default;
+            opacity: .4;
+        }
+
         /* ---------- Toast ---------- */
         .simple-toast {
             position: fixed;
@@ -942,6 +1113,42 @@
             .comparison-table {
                 min-width: 540px;
             }
+
+            .tutorial-content {
+                padding: 20px 12px 14px;
+            }
+
+            .tutorial-content h2 {
+                font-size: 20px;
+            }
+
+            .tutorial-lead {
+                margin-bottom: 9px;
+                font-size: 12px;
+            }
+
+            .tutorial-steps {
+                gap: 4px;
+                margin-bottom: 9px;
+            }
+
+            .tutorial-step {
+                padding: 6px 3px;
+                font-size: 10px;
+            }
+
+            .tutorial-stage {
+                padding: 10px 4px 8px;
+            }
+
+            .tutorial-controls {
+                gap: 4px;
+            }
+
+            .tutorial-controls button {
+                padding: 6px 2px;
+                font-size: 11px;
+            }
         }
 
         @media (max-width: 350px) {
@@ -1072,6 +1279,44 @@
                 </div>
                 <div class="history-comparison" id="historyComparison"></div>
                 <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal tutorial-layer" id="tutorialModal" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+        <div class="modal-content tutorial-content">
+            <button type="button" class="close-btn tutorial-close" id="tutorialClose" onclick="closeTutorial()" aria-label="关闭原理演示">&times;</button>
+            <h2 id="tutorialTitle">汉诺塔原理演示</h2>
+            <p class="tutorial-lead">以 3 个圆盘为例，用 7 步看清递归思路</p>
+            <div class="tutorial-steps">
+                <div class="tutorial-step"><b>第一步</b><br>上面 2 盘：A → B</div>
+                <div class="tutorial-step"><b>第二步</b><br>最大盘：A → C</div>
+                <div class="tutorial-step"><b>第三步</b><br>上面 2 盘：B → C</div>
+            </div>
+            <div class="tutorial-stage">
+                <div class="tutorial-peg-wrap">
+                    <div class="tutorial-peg" id="tutorialPegA"></div>
+                    <span class="tutorial-peg-label">A</span>
+                </div>
+                <div class="tutorial-peg-wrap">
+                    <div class="tutorial-peg" id="tutorialPegB"></div>
+                    <span class="tutorial-peg-label">B</span>
+                </div>
+                <div class="tutorial-peg-wrap">
+                    <div class="tutorial-peg" id="tutorialPegC"></div>
+                    <span class="tutorial-peg-label">C</span>
+                </div>
+            </div>
+            <div class="tutorial-status">
+                <span id="tutorialStepLabel">第 0 / 7 步</span>
+                <span id="tutorialMoveLabel">准备开始</span>
+            </div>
+            <p class="tutorial-phase" id="tutorialPhase" aria-live="polite">点击“播放”自动演示，也可以用“下一步”逐层观察。</p>
+            <div class="tutorial-controls">
+                <button type="button" id="tutorialPrev" onclick="previousTutorialMove()">上一步</button>
+                <button type="button" class="tutorial-play" id="tutorialPlay" onclick="toggleTutorialPlayback()">播放</button>
+                <button type="button" id="tutorialNext" onclick="nextTutorialMove()">下一步</button>
+                <button type="button" id="tutorialRestart" onclick="resetTutorial()">重新演示</button>
             </div>
         </div>
     </div>
@@ -1357,8 +1602,109 @@
             document.getElementById('winModal').style.display = 'none';
         }
 
+        // ===== 原理演示 =====
+        var tutorialMoves = [
+            { disk: 1, from: 'A', to: 'C', phase: '第一阶段：先把 A 上面的 2 个圆盘移到 B。当前先移 1 号盘。' },
+            { disk: 2, from: 'A', to: 'B', phase: '第一阶段：继续把 2 号盘移到辅助柱 B。' },
+            { disk: 1, from: 'C', to: 'B', phase: '第一阶段完成：1、2 号盘已经按顺序移到 B。' },
+            { disk: 3, from: 'A', to: 'C', phase: '第二阶段完成：最大的 3 号盘已经从 A 移到 C。' },
+            { disk: 1, from: 'B', to: 'A', phase: '第三阶段：把 B 上的 2 个圆盘移到 C，先移开 1 号盘。' },
+            { disk: 2, from: 'B', to: 'C', phase: '第三阶段：把 2 号盘放到 C 柱的 3 号盘上面。' },
+            { disk: 1, from: 'A', to: 'C', phase: '演示完成：3 个圆盘全部有序地移到了 C。更多层数也可以反复套用这三步。' }
+        ];
+        var tutorialStep = 0;
+        var tutorialPegs = { A: [1, 2, 3], B: [], C: [] };
+        var tutorialTimer = null;
+
         function goToTutorial() {
-            showToast('原理演示页面暂未包含在此文件中');
+            closeWinModal();
+            resetTutorial();
+            document.getElementById('tutorialModal').style.display = 'flex';
+        }
+
+        function closeTutorial() {
+            stopTutorialPlayback();
+            document.getElementById('tutorialModal').style.display = 'none';
+        }
+
+        function stopTutorialPlayback() {
+            clearInterval(tutorialTimer);
+            tutorialTimer = null;
+            var playButton = document.getElementById('tutorialPlay');
+            if (playButton) playButton.textContent = '播放';
+        }
+
+        function resetTutorial() {
+            stopTutorialPlayback();
+            tutorialStep = 0;
+            tutorialPegs = { A: [1, 2, 3], B: [], C: [] };
+            renderTutorial();
+        }
+
+        function advanceTutorial() {
+            if (tutorialStep >= tutorialMoves.length) return;
+            var move = tutorialMoves[tutorialStep];
+            var disk = tutorialPegs[move.from].shift();
+            tutorialPegs[move.to].unshift(disk);
+            tutorialStep++;
+            renderTutorial();
+        }
+
+        function nextTutorialMove() {
+            stopTutorialPlayback();
+            advanceTutorial();
+        }
+
+        function previousTutorialMove() {
+            stopTutorialPlayback();
+            if (tutorialStep === 0) return;
+            tutorialStep--;
+            var move = tutorialMoves[tutorialStep];
+            var disk = tutorialPegs[move.to].shift();
+            tutorialPegs[move.from].unshift(disk);
+            renderTutorial();
+        }
+
+        function toggleTutorialPlayback() {
+            if (tutorialTimer) {
+                stopTutorialPlayback();
+                return;
+            }
+            if (tutorialStep >= tutorialMoves.length) return;
+            tutorialTimer = setInterval(function () {
+                advanceTutorial();
+                if (tutorialStep >= tutorialMoves.length) stopTutorialPlayback();
+            }, 1100);
+            renderTutorial();
+        }
+
+        function renderTutorial() {
+            var widths = { 1: 36, 2: 58, 3: 80 };
+            ['A', 'B', 'C'].forEach(function (id) {
+                var peg = document.getElementById('tutorialPeg' + id);
+                peg.innerHTML = '';
+                tutorialPegs[id].forEach(function (size) {
+                    var disk = document.createElement('div');
+                    disk.className = 'tutorial-disk disk-' + size;
+                    disk.dataset.disk = size;
+                    disk.style.width = widths[size] + 'px';
+                    disk.textContent = size;
+                    peg.appendChild(disk);
+                });
+            });
+
+            document.getElementById('tutorialStepLabel').textContent = '第 ' + tutorialStep + ' / 7 步';
+            document.getElementById('tutorialMoveLabel').textContent = tutorialStep === 0
+                ? '准备开始'
+                : tutorialMoves[tutorialStep - 1].disk + ' 号盘：' + tutorialMoves[tutorialStep - 1].from + ' → ' + tutorialMoves[tutorialStep - 1].to;
+            document.getElementById('tutorialPhase').textContent = tutorialStep === 0
+                ? '点击“播放”自动演示，也可以用“下一步”逐层观察。'
+                : tutorialMoves[tutorialStep - 1].phase;
+            document.getElementById('tutorialPrev').disabled = tutorialStep === 0;
+            document.getElementById('tutorialNext').disabled = tutorialStep === tutorialMoves.length;
+            var playButton = document.getElementById('tutorialPlay');
+            playButton.disabled = tutorialStep === tutorialMoves.length;
+            playButton.textContent = tutorialTimer ? '暂停' : '播放';
         }
 
         // ===== Toast =====
