@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>汉诺塔游戏</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <style>
+        :root {
+            --brand: #4f7cf7;
+            --brand-2: #8b5cf6;
+            --ink: #2b3452;
+            --muted: #8a91a8;
+            --card: #ffffff;
+            --line: #eef0f7;
+        }
+
+        * {
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif;
+            background:
+                radial-gradient(1200px 600px at 15% -5%, rgba(79, 124, 247, .16), transparent 60%),
+                radial-gradient(1000px 500px at 100% 0%, rgba(139, 92, 246, .14), transparent 55%),
+                linear-gradient(180deg, #eef3ff 0%, #f7f5ff 55%, #eef1fb 100%);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            overflow-y: auto;
+        }
+
+        /* ---------- 标题 ---------- */
+        .game-header {
+            text-align: center;
+            padding: 26px 0 8px;
+        }
+
+        .game-header h1 {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(100deg, #3f6df0, #8b5cf6 60%, #c026d3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+        }
+
+        .game-header .subtitle {
+            margin-top: 6px;
+            font-size: 14px;
+            color: var(--muted);
+            letter-spacing: 1px;
+        }
+
+        /* ---------- 容器 ---------- */
+        .game-container {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+            padding: 16px 20px 40px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(45, 62, 130, .08), 0 2px 6px rgba(45, 62, 130, .04);
+        }
+
+        /* ---------- 控制面板 ---------- */
+        .control-panel {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 22px;
+            margin-top: 14px;
+        }
+
+        .config {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .config > label {
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+
+        .disk-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .disk-chip {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            background: #fff;
+            color: var(--ink);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+
+        .disk-chip:hover {
+            border-color: var(--brand);
+            color: var(--brand);
+            transform: translateY(-2px);
+        }
+
+        .disk-chip.active {
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 6px 14px rgba(79, 124, 247, .35);
+        }
+
+        .number-input {
+            display: inline-flex;
+            align-items: stretch;
+            height: 40px;
+            border: 2px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .number-input button {
+            width: 36px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: var(--ink);
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .number-input button:hover {
+            background: #f2f5ff;
+            color: var(--brand);
+        }
+
+        .number-input input {
+            width: 44px;
+            text-align: center;
+            border: none;
+            border-left: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            -moz-appearance: textfield;
+        }
+
+        .number-input input::-webkit-outer-spin-button,
+        .number-input input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all .18s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .12);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, .16);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .14);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f7cf7, #8b5cf6);
+        }
+
+        .btn-green {
+            background: linear-gradient(135deg, #34d399, #10b981);
+        }
+
+        .btn-gray {
+            background: linear-gradient(135deg, #94a3b8, #64748b);
+        }
+
+        .btn .ico {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        /* ---------- 规则 / 记录 ---------- */
+        .center {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .game-rules,
+        .move-history {
+            flex: 1;
+            min-height: 132px;
+            padding: 16px 20px;
+            line-height: 1.9;
+        }
+
+        .game-rules h3,
+        .game-rules summary,
+        .move-history h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .game-rules summary {
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .game-rules ul {
+            padding-left: 20px;
+            color: var(--muted);
+        }
+
+        .game-rules li {
+            margin: 2px 0;
+        }
+
+        .move-history {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .all-history {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            padding: 0;
+            border: 0;
+            background: none;
+            font-size: 13px;
+            color: var(--brand);
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+
+        .all-history:hover {
+            text-decoration: underline;
+        }
+
+        #moveList {
+            flex: 1;
+            max-height: 92px;
+            overflow-y: auto;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* ---------- 状态条 ---------- */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            margin: 18px 0 8px;
+            font-size: 15px;
+        }
+
+        .status-bar .stat {
+            font-weight: 700;
+            color: var(--brand);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-bar .tip {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        /* ---------- 游戏区 ---------- */
+        .pegs-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 30px 12px 34px;
+            margin-top: 8px;
+            background:
+                linear-gradient(180deg, #fbfcff, #f4f6ff);
+            border-radius: 18px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9);
+            position: relative;
+        }
+
+        .peg-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 360px;
+            padding: 20px 6px 6px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background .2s ease, transform .2s ease;
+        }
+
+        .peg-container:hover {
+            background: rgba(79, 124, 247, .08);
+        }
+
+        .peg-container.selected {
+            background: rgba(79, 124, 247, .16);
+            box-shadow: inset 0 0 0 2px rgba(79, 124, 247, .35);
+            transform: translateY(-3px);
+        }
+
+        .peg-container .peg-label {
+            font-size: 18px;
+            font-weight: 800;
+            color: #a9b2cc;
+            margin-top: 12px;
+        }
+
+        .peg {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            width: 16px;
+            background: linear-gradient(90deg, #a06b40, #e8c896 45%, #f3d9ac 55%, #a06b40);
+            border-radius: 8px 8px 4px 4px;
+            position: relative;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, .18);
+        }
+
+        .peg::after {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: var(--maxw, 140px);
+            height: 14px;
+            border-radius: 8px;
+            background: linear-gradient(180deg, #e9cb98, #b07a45);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, .22);
+        }
+
+        .disk {
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+            position: relative;
+            z-index: 2;
+            transition: width .25s ease;
+            box-shadow:
+                inset 0 2px 3px rgba(255, 255, 255, .55),
+                inset 0 -3px 4px rgba(0, 0, 0, .14),
+                0 2px 4px rgba(0, 0, 0, .18);
+        }
+
+        @keyframes diskPop {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.18); }
+            100% { transform: scale(1); }
+        }
+
+        .disk.disk-pop {
+            animation: diskPop .38s ease;
+        }
+
+        /* 圆盘配色（渐变） */
+        .disk-1  { background: linear-gradient(180deg, #ff9a9e, #ff5252); }
+        .disk-2  { background: linear-gradient(180deg, #7fecdd, #26c6da); }
+        .disk-3  { background: linear-gradient(180deg, #ffe082, #ffb300); }
+        .disk-4  { background: linear-gradient(180deg, #d7a6f0, #ab47bc); }
+        .disk-5  { background: linear-gradient(180deg, #9be3a8, #4caf50); }
+        .disk-6  { background: linear-gradient(180deg, #93c5fd, #1e88e5); }
+        .disk-7  { background: linear-gradient(180deg, #ffb090, #ff5722); }
+        .disk-8  { background: linear-gradient(180deg, #7fd3c8, #00897b); }
+        .disk-9  { background: linear-gradient(180deg, #f6a1c1, #ec407a); }
+        .disk-10 { background: linear-gradient(180deg, #ffce82, #fb8c00); }
+
+        /* ---------- 模态框 ---------- */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 36, 66, .5);
+            backdrop-filter: blur(3px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 32px 34px;
+            border-radius: 20px;
+            width: 460px;
+            max-width: 94vw;
+            text-align: center;
+            line-height: 2;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(20, 30, 70, .3);
+            animation: modalIn .28s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(.9) translateY(12px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #c2c7d8;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: var(--ink);
+        }
+
+        #winMessage h2 {
+            font-size: 26px;
+            background: linear-gradient(100deg, #3f6df0, #c026d3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin-bottom: 6px;
+        }
+
+        #winMessage p {
+            margin: 2px 0;
+            font-size: 16px;
+            color: var(--muted);
+        }
+
+        #winMessage p b {
+            color: var(--ink);
+        }
+
+        .modal .buttons {
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        /* ---------- 历史记录弹框 ---------- */
+        .all-history-layer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(20, 26, 50, .6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .all-history-layer .modal-content {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            line-height: 1.6;
+            width: 90%;
+            max-width: 760px;
+            max-height: 84vh;
+        }
+
+        .all-history-layer .modal-header {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .all-history-layer .modal-header h2 {
+            font-size: 20px;
+            color: var(--ink);
+        }
+
+        .all-history-layer .modal-header .close-btn {
+            right: 0;
+            top: 0;
+        }
+
+        .all-history-layer .modal-body {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .filter-section h3 {
+            font-size: 14px;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .disk-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #f1f4fb;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .checkbox-label:hover {
+            background: #e6ecfa;
+        }
+
+        .compare-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .compare-actions .btn {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .history-group {
+            margin-bottom: 20px;
+        }
+
+        .group-title {
+            padding: 7px 14px;
+            background: #eef1fb;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .history-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .history-header {
+            padding: 9px 12px;
+            background: #fafbfe;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .history-header span {
+            flex: 1;
+            text-align: center;
+        }
+
+        .history-details {
+            padding: 10px 14px;
+            display: none;
+            background: #fff;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .no-history {
+            text-align: center;
+            padding: 28px;
+            color: var(--muted);
+        }
+
+        .toggle-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            background: #fff;
+            font-size: 13px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid var(--line);
+        }
+
+        .comparison-table th {
+            background: #f0f3fb;
+            font-weight: 700;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #fafbfe;
+        }
+
+        /* ---------- Toast ---------- */
+        .simple-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(25, 30, 55, .88);
+            color: #fff;
+            padding: 14px 26px;
+            border-radius: 12px;
+            font-size: 15px;
+            text-align: center;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity .3s ease;
+            max-width: 72%;
+            pointer-events: none;
+        }
+
+        .simple-toast.show {
+            opacity: 1;
+        }
+
+        /* ---------- 触控与响应式 ---------- */
+        button,
+        .peg-container {
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:focus-visible,
+        summary:focus-visible,
+        .peg-container:focus-visible {
+            outline: 3px solid rgba(79, 124, 247, .4);
+            outline-offset: 2px;
+        }
+
+        @media (hover: none) {
+            .btn:hover,
+            .disk-chip:hover {
+                transform: none;
+            }
+
+            .peg-container:hover {
+                background: transparent;
+            }
+
+            .peg-container.selected:hover {
+                background: rgba(79, 124, 247, .16);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
+        @media (max-width: 600px) {
+            html,
+            body {
+                height: auto;
+                min-height: 100%;
+            }
+
+            body {
+                padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+                overflow-x: hidden;
+            }
+
+            .game-container {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                padding: 8px;
+            }
+
+            .game-header {
+                order: 0;
+                padding: 0 0 6px;
+            }
+
+            .game-header h1 {
+                font-size: 23px;
+                line-height: 1.25;
+                letter-spacing: 1px;
+            }
+
+            .game-header .subtitle {
+                margin-top: 3px;
+                font-size: 11px;
+                line-height: 1.4;
+                letter-spacing: 0;
+            }
+
+            .control-panel {
+                order: 1;
+                flex-direction: row;
+                align-items: center;
+                flex-wrap: nowrap;
+                gap: 6px;
+                padding: 6px;
+                margin-top: 0;
+                border-radius: 14px;
+            }
+
+            .config {
+                flex: 0 0 auto;
+                flex-wrap: nowrap;
+                gap: 0;
+            }
+
+            .config > label,
+            .disk-chips {
+                display: none;
+            }
+
+            .number-input {
+                height: 42px;
+                border-radius: 10px;
+            }
+
+            .number-input button {
+                width: 34px;
+                font-size: 19px;
+            }
+
+            .number-input input {
+                width: 32px;
+                font-size: 15px;
+            }
+
+            .buttons {
+                flex: 1;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+                min-width: 0;
+            }
+
+            .btn {
+                justify-content: center;
+                min-width: 0;
+                min-height: 42px;
+                padding: 7px 5px;
+                border-radius: 10px;
+                font-size: 12px;
+                letter-spacing: 0;
+                white-space: nowrap;
+            }
+
+            .btn .ico {
+                font-size: 14px;
+            }
+
+            .status-bar {
+                order: 2;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                gap: 6px;
+                margin: 7px 0;
+                font-size: 12px;
+                line-height: 18px;
+                white-space: nowrap;
+            }
+
+            .pegs-container {
+                order: 3;
+                padding: 10px 4px 24px;
+                margin-top: 0;
+                border-radius: 14px;
+            }
+
+            .peg-container {
+                min-width: 0;
+                padding: 6px 2px 2px;
+                border-radius: 10px;
+            }
+
+            .peg-container .peg-label {
+                margin-top: 8px;
+                font-size: 14px;
+                line-height: 18px;
+            }
+
+            .peg-container.selected {
+                transform: translateY(-2px);
+            }
+
+            .peg::after {
+                bottom: -12px;
+                height: 11px;
+            }
+
+            .disk {
+                border-radius: 8px;
+                font-size: 10px;
+            }
+
+            .center {
+                order: 4;
+                display: grid;
+                grid-template-columns: .85fr 1.15fr;
+                align-items: start;
+                gap: 7px;
+                margin-top: 7px;
+            }
+
+            .game-rules,
+            .move-history {
+                min-width: 0;
+                min-height: 46px;
+                padding: 4px 8px;
+                border-radius: 12px;
+                line-height: 1.5;
+            }
+
+            .game-rules summary {
+                display: flex;
+                align-items: center;
+                min-height: 38px;
+                margin: 0;
+                font-size: 12px;
+            }
+
+            .game-rules[open] summary {
+                margin-bottom: 5px;
+            }
+
+            .game-rules ul {
+                padding: 0 0 5px 16px;
+                font-size: 11px;
+                line-height: 1.65;
+            }
+
+            .move-history h3 {
+                margin: 0 44px 0 0;
+                font-size: 12px;
+                line-height: 18px;
+            }
+
+            .all-history {
+                top: 3px;
+                right: 3px;
+                min-width: 44px;
+                min-height: 38px;
+                padding: 0 3px;
+                font-size: 11px;
+            }
+
+            #moveList {
+                flex: none;
+                min-height: 18px;
+                max-height: 18px;
+                overflow-y: auto;
+                font-size: 11px;
+                line-height: 18px;
+                white-space: nowrap;
+            }
+
+            .modal,
+            .all-history-layer {
+                padding: 12px;
+            }
+
+            .modal-content {
+                padding: 26px 18px 20px;
+                border-radius: 16px;
+            }
+
+            .all-history-layer .modal-content {
+                width: 100%;
+                max-height: 88vh;
+                max-height: 88dvh;
+            }
+
+            .history-header span:nth-child(4) {
+                display: none;
+            }
+
+            .history-comparison {
+                overflow-x: auto;
+            }
+
+            .comparison-table {
+                min-width: 540px;
+            }
+        }
+
+        @media (max-width: 350px) {
+            .game-header .subtitle {
+                font-size: 10px;
+            }
+
+            .number-input button {
+                width: 31px;
+            }
+
+            .number-input input {
+                width: 29px;
+            }
+
+            .btn {
+                font-size: 11px;
+            }
+
+            .btn .ico {
+                display: none;
+            }
+
+            .status-bar {
+                font-size: 11px;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 768px) {
+            .game-header h1 { font-size: 26px; }
+            .control-panel { flex-direction: column; align-items: stretch; }
+            .config { justify-content: center; }
+            .buttons { justify-content: center; }
+            .center { flex-direction: column; }
+            #moveList { max-height: 120px; }
+            .status-bar { flex-wrap: wrap; gap: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>汉诺塔游戏</h1>
+            <p class="subtitle">把所有圆盘从 A 柱移到 C 柱</p>
+        </header>
+
+        <div class="control-panel card">
+            <div class="config">
+                <label>选择层数</label>
+                <div class="disk-chips" id="diskChips"></div>
+                <div class="number-input">
+                    <button class="decrement" onclick="adjustDiskNum(-1)">−</button>
+                    <input type="number" id="diskNum" min="2" max="10" value="6" onchange="handleDiskNumChange()">
+                    <button class="increment" onclick="adjustDiskNum(1)">+</button>
+                </div>
+            </div>
+            <div class="buttons">
+                <button class="btn btn-green" onclick="resetGame()"><span class="ico">↺</span>重新开始</button>
+                <button class="btn btn-gray" onclick="undoMove()"><span class="ico">↩</span>撤回一步</button>
+            </div>
+        </div>
+
+        <div class="center">
+            <details class="game-rules card" id="gameRules" open>
+                <summary>游戏规则</summary>
+                <ul>
+                    <li>目标：把 A 柱所有圆盘按规则移到 C 柱</li>
+                    <li>操作：点击「来源柱」再点击「目标柱」完成一次移动</li>
+                    <li>规则：每次只移一个盘，小盘只能放在大盘上面</li>
+                </ul>
+            </details>
+
+            <div class="move-history card">
+                <h3>步骤记录</h3>
+                <button type="button" class="all-history">历史记录</button>
+                <div id="moveList"></div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>当前步数：<span class="stat" id="stepCounter">0</span></span>
+            <span>用时：<span class="stat" id="gameTimer">00:00</span></span>
+            <span class="tip" id="tips"></span>
+        </div>
+
+        <div class="pegs-container card">
+            <div class="peg-container" onclick="handlePegClick('A')">
+                <div class="peg" id="A"></div>
+                <div class="peg-label">A</div>
+            </div>
+            <div class="peg-container" onclick="handlePegClick('B')">
+                <div class="peg" id="B"></div>
+                <div class="peg-label">B</div>
+            </div>
+            <div class="peg-container" onclick="handlePegClick('C')">
+                <div class="peg" id="C"></div>
+                <div class="peg-label">C</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeWinModal()">&times;</span>
+            <div id="winMessage"></div>
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="resetGame()">再来一局</button>
+                <button class="btn btn-green" id="tutorialBtn" onclick="goToTutorial()" style="display:none;">查看原理演示</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="all-history-layer" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-btn" onclick="closeHistoryModal()">&times;</span>
+                <h2>历史最优解记录</h2>
+            </div>
+            <div class="modal-body">
+                <div class="filter-section">
+                    <h3>选择圆盘数量比较</h3>
+                    <div class="disk-checkboxes" id="diskCheckboxes"></div>
+                    <div class="compare-actions">
+                        <button class="btn btn-primary" onclick="applyComparison()">应用比较</button>
+                        <button class="btn btn-gray" onclick="clearSelection()">清除选择</button>
+                    </div>
+                </div>
+                <div class="history-comparison" id="historyComparison"></div>
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="simpleToast" class="simple-toast"></div>
+
+    <script>
+        // ===== 常量与状态 =====
+        var DISK_MIN = 2;
+        var DISK_MAX = 10;
+        var pegs = { A: [], B: [], C: [] };
+        var selectedPeg = null;
+        var diskCount = 6;
+        var stepCount = 0;
+        var moveHistory = [];
+        var timerInterval = null;
+        var seconds = 0;
+        var gameStarted = false;
+        var gameWon = false;
+        var STORAGE_KEY = 'hanoiBestRecords';
+
+        // ===== 初始化 =====
+        function initGame() {
+            buildDiskChips();
+            document.querySelector('.all-history').addEventListener('click', openHistoryModal);
+            if (window.matchMedia('(max-width: 600px)').matches) {
+                document.getElementById('gameRules').removeAttribute('open');
+            }
+            resetGame();
+        }
+
+        function buildDiskChips() {
+            var wrap = document.getElementById('diskChips');
+            wrap.innerHTML = '';
+            for (var i = DISK_MIN; i <= DISK_MAX; i++) {
+                var b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'disk-chip';
+                b.textContent = i;
+                b.dataset.n = i;
+                b.onclick = function () { setDiskCount(parseInt(this.dataset.n, 10)); };
+                wrap.appendChild(b);
+            }
+        }
+
+        function setDiskCount(n) {
+            var input = document.getElementById('diskNum');
+            n = Math.max(DISK_MIN, Math.min(DISK_MAX, n));
+            input.value = n;
+            resetGame();
+        }
+
+        function updateDiskChips() {
+            var chips = document.querySelectorAll('.disk-chip');
+            for (var i = 0; i < chips.length; i++) {
+                chips[i].classList.toggle('active', parseInt(chips[i].dataset.n, 10) === diskCount);
+            }
+        }
+
+        function resetGame() {
+            var input = document.getElementById('diskNum');
+            diskCount = parseInt(input.value, 10) || 6;
+            diskCount = Math.max(DISK_MIN, Math.min(DISK_MAX, diskCount));
+            input.value = diskCount;
+
+            stopTimer();
+            seconds = 0;
+            gameStarted = false;
+            gameWon = false;
+            stepCount = 0;
+            selectedPeg = null;
+            moveHistory = [];
+            pegs = { A: [], B: [], C: [] };
+            for (var i = 1; i <= diskCount; i++) {
+                pegs.A.push(i); // 栈顶为最小圆盘
+            }
+
+            document.getElementById('moveList').innerHTML = '<div class="history-empty">暂无步骤</div>';
+            clearHighlight();
+            updateDiskChips();
+            renderPegs();
+            updateHUD();
+            closeWinModal();
+            document.getElementById('tutorialBtn').style.display = 'none';
+        }
+
+        function adjustDiskNum(delta) {
+            var input = document.getElementById('diskNum');
+            var v = parseInt(input.value, 10) || DISK_MIN;
+            v = Math.max(DISK_MIN, Math.min(DISK_MAX, v + delta));
+            input.value = v;
+            resetGame();
+        }
+
+        function handleDiskNumChange() {
+            setDiskCount(parseInt(document.getElementById('diskNum').value, 10));
+        }
+
+        // ===== 渲染 =====
+        function renderPegs() {
+            var container = document.querySelector('.pegs-container');
+            var compact = window.matchMedia('(max-width: 600px)').matches;
+            var avail = Math.max(210, container.clientWidth - (compact ? 12 : 48));
+            var perPeg = avail / 3;
+            var maxW = Math.min(330, Math.max(compact ? 60 : 130, perPeg - (compact ? 8 : 16)));
+            var minW = Math.min(compact ? 36 : 52, maxW * .45);
+            var stepW = diskCount > 1 ? (maxW - minW) / (diskCount - 1) : 0;
+            var diskH = compact
+                ? Math.max(14, Math.min(24, Math.floor(160 / diskCount)))
+                : Math.max(16, Math.min(34, Math.round(190 / diskCount)));
+            var gap = compact ? 3 : 5;
+            var pegH = diskCount * (diskH + gap) + (compact ? 24 : 36);
+
+            container.style.setProperty('--maxw', maxW + 'px');
+
+            ['A', 'B', 'C'].forEach(function (id) {
+                var pegEl = document.getElementById(id);
+                pegEl.style.height = pegH + 'px';
+                pegEl.innerHTML = '';
+                pegs[id].forEach(function (size) {
+                    var disk = document.createElement('div');
+                    disk.className = 'disk disk-' + size;
+                    disk.style.width = Math.round(minW + (size - 1) * stepW) + 'px';
+                    disk.style.height = diskH + 'px';
+                    disk.style.lineHeight = diskH + 'px';
+                    disk.textContent = size;
+                    pegEl.appendChild(disk);
+                });
+            });
+        }
+
+        function updateHUD() {
+            document.getElementById('stepCounter').textContent = stepCount;
+            document.getElementById('gameTimer').textContent = formatTime(seconds);
+            var optimal = Math.pow(2, diskCount) - 1;
+            document.getElementById('tips').textContent = '最少步数：' + optimal + ' 步';
+        }
+
+        // ===== 交互 =====
+        function handlePegClick(id) {
+            if (gameWon) return;
+
+            if (selectedPeg === null) {
+                if (pegs[id].length === 0) {
+                    showToast('该柱子没有圆盘');
+                    return;
+                }
+                selectedPeg = id;
+                highlightPeg(id);
+                return;
+            }
+
+            if (selectedPeg === id) {
+                selectedPeg = null;
+                clearHighlight();
+                return;
+            }
+
+            var from = selectedPeg;
+            selectedPeg = null;
+            clearHighlight();
+
+            if (!gameStarted) {
+                gameStarted = true;
+                startTimer();
+            }
+
+            if (moveDisk(from, id)) {
+                addMoveToList(from, id);
+                if (checkWin()) {
+                    gameWon = true;
+                    stopTimer();
+                    saveRecord();
+                    setTimeout(showWinModal, 320);
+                }
+            }
+        }
+
+        function moveDisk(from, to) {
+            var src = pegs[from];
+            var dst = pegs[to];
+            var disk = src[0];
+
+            if (dst.length > 0 && disk > dst[0]) {
+                showToast('不能把大盘子放到小盘子上');
+                return false;
+            }
+
+            src.shift();
+            dst.unshift(disk);
+            moveHistory.push({ from: from, to: to, disk: disk });
+            stepCount++;
+            updateHUD();
+            renderPegs();
+
+            var topDisk = document.getElementById(to).firstElementChild;
+            if (topDisk) {
+                topDisk.classList.add('disk-pop');
+                setTimeout(function () { topDisk.classList.remove('disk-pop'); }, 400);
+            }
+            return true;
+        }
+
+        function undoMove() {
+            if (moveHistory.length === 0) {
+                showToast('没有可撤回的步骤');
+                return;
+            }
+            var last = moveHistory.pop();
+            var d = pegs[last.to].shift();
+            pegs[last.from].unshift(d);
+            stepCount--;
+            renderPegs();
+            updateHUD();
+
+            var list = document.getElementById('moveList');
+            if (list.lastChild) list.removeChild(list.lastChild);
+            if (moveHistory.length === 0) {
+                list.innerHTML = '<div class="history-empty">暂无步骤</div>';
+            }
+        }
+
+        function highlightPeg(id) {
+            clearHighlight();
+            var idx = { A: 0, B: 1, C: 2 }[id];
+            var containers = document.querySelectorAll('.peg-container');
+            if (containers[idx]) containers[idx].classList.add('selected');
+        }
+
+        function clearHighlight() {
+            document.querySelectorAll('.peg-container').forEach(function (c) {
+                c.classList.remove('selected');
+            });
+        }
+
+        function addMoveToList(from, to) {
+            var list = document.getElementById('moveList');
+            if (stepCount === 1) list.innerHTML = '';
+            var item = document.createElement('div');
+            item.textContent = '第 ' + stepCount + ' 步：' + from + ' → ' + to;
+            list.appendChild(item);
+            list.scrollTop = list.scrollHeight;
+        }
+
+        // ===== 计时 =====
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(function () {
+                seconds++;
+                document.getElementById('gameTimer').textContent = formatTime(seconds);
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function formatTime(s) {
+            var m = Math.floor(s / 60);
+            var sec = s % 60;
+            return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        }
+
+        // ===== 胜利 =====
+        function checkWin() {
+            return pegs.C.length === diskCount;
+        }
+
+        function showWinModal() {
+            var optimal = Math.pow(2, diskCount) - 1;
+            document.getElementById('winMessage').innerHTML =
+                '<h2>恭喜通关！</h2>' +
+                '<p>圆盘数：<b>' + diskCount + '</b></p>' +
+                '<p>步数：<b>' + stepCount + '</b> 步</p>' +
+                '<p>用时：<b>' + formatTime(seconds) + '</b></p>' +
+                '<p>最少步数：<b>' + optimal + '</b> 步</p>';
+            document.getElementById('tutorialBtn').style.display = 'inline-flex';
+            document.getElementById('winModal').style.display = 'flex';
+        }
+
+        function closeWinModal() {
+            document.getElementById('winModal').style.display = 'none';
+        }
+
+        function goToTutorial() {
+            showToast('原理演示页面暂未包含在此文件中');
+        }
+
+        // ===== Toast =====
+        var toastTimeout = null;
+        function showToast(msg) {
+            var t = document.getElementById('simpleToast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(function () {
+                t.classList.remove('show');
+            }, 1500);
+        }
+
+        // ===== 历史记录 =====
+        function getRecords() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function setRecords(records) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+            } catch (e) { /* 忽略存储异常 */ }
+        }
+
+        function saveRecord() {
+            var records = getRecords();
+            records.push({
+                disks: diskCount,
+                steps: stepCount,
+                seconds: seconds,
+                dateStr: new Date().toLocaleString()
+            });
+            records.sort(function (a, b) {
+                return a.disks - b.disks || a.steps - b.steps;
+            });
+            setRecords(records.slice(-200));
+        }
+
+        function openHistoryModal() {
+            renderHistory();
+            document.getElementById('historyModal').style.display = 'flex';
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        function renderHistory() {
+            var records = getRecords();
+            var listEl = document.getElementById('historyList');
+            var compEl = document.getElementById('historyComparison');
+            var checkboxesEl = document.getElementById('diskCheckboxes');
+            listEl.innerHTML = '';
+            compEl.innerHTML = '';
+            checkboxesEl.innerHTML = '';
+
+            if (records.length === 0) {
+                listEl.innerHTML = '<div class="no-history">暂无历史记录，快去挑战吧！</div>';
+                return;
+            }
+
+            var groups = {};
+            records.forEach(function (r) {
+                if (!groups[r.disks]) groups[r.disks] = [];
+                groups[r.disks].push(r);
+            });
+            var diskCounts = Object.keys(groups).map(Number).sort(function (a, b) { return a - b; });
+
+            diskCounts.forEach(function (d) {
+                var label = document.createElement('label');
+                label.className = 'checkbox-label';
+                label.innerHTML = '<input type="checkbox" class="disk-checkbox" value="' + d + '"> ' + d + ' 个圆盘';
+                checkboxesEl.appendChild(label);
+            });
+
+            diskCounts.forEach(function (d) {
+                var group = document.createElement('div');
+                group.className = 'history-group';
+                group.innerHTML = '<div class="group-title">' + d + ' 个圆盘</div>';
+                groups[d].forEach(function (r) {
+                    var item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML =
+                        '<div class="history-header">' +
+                            '<span>' + r.disks + ' 个圆盘</span>' +
+                            '<span>' + r.steps + ' 步</span>' +
+                            '<span>' + formatTime(r.seconds) + '</span>' +
+                            '<span>' + r.dateStr + '</span>' +
+                            '<span class="toggle-icon">▾</span>' +
+                        '</div>' +
+                        '<div class="history-details">' +
+                            '<p>圆盘数：' + r.disks + '</p>' +
+                            '<p>步数：' + r.steps + '</p>' +
+                            '<p>用时：' + formatTime(r.seconds) + '</p>' +
+                            '<p>时间：' + r.dateStr + '</p>' +
+                        '</div>';
+                    var header = item.querySelector('.history-header');
+                    header.addEventListener('click', function () {
+                        var details = item.querySelector('.history-details');
+                        var icon = header.querySelector('.toggle-icon');
+                        var willShow = details.style.display !== 'block';
+                        details.style.display = willShow ? 'block' : 'none';
+                        icon.textContent = willShow ? '▴' : '▾';
+                    });
+                    group.appendChild(item);
+                });
+                listEl.appendChild(group);
+            });
+        }
+
+        function applyComparison() {
+            var records = getRecords();
+            var compEl = document.getElementById('historyComparison');
+            var checked = Array.prototype.slice.call(document.querySelectorAll('.disk-checkbox:checked'))
+                .map(function (cb) { return parseInt(cb.value, 10); });
+
+            compEl.innerHTML = '';
+            if (checked.length === 0) {
+                showToast('请先选择要比较的圆盘数量');
+                return;
+            }
+
+            var html = '<table class="comparison-table"><thead><tr>' +
+                '<th>圆盘数</th><th>最少步数</th><th>最优解步数</th><th>用时</th><th>记录时间</th>' +
+                '</tr></thead><tbody>';
+
+            checked.forEach(function (d) {
+                var list = records.filter(function (r) { return r.disks === d; });
+                if (list.length === 0) return;
+                var best = list.reduce(function (a, b) { return a.steps <= b.steps ? a : b; });
+                var optimal = Math.pow(2, d) - 1;
+                html += '<tr>' +
+                    '<td>' + d + '</td>' +
+                    '<td>' + best.steps + '</td>' +
+                    '<td>' + optimal + '</td>' +
+                    '<td>' + formatTime(best.seconds) + '</td>' +
+                    '<td>' + best.dateStr + '</td>' +
+                    '</tr>';
+            });
+
+            html += '</tbody></table>';
+            compEl.innerHTML = html;
+        }
+
+        function clearSelection() {
+            document.querySelectorAll('.disk-checkbox').forEach(function (cb) { cb.checked = false; });
+            document.getElementById('historyComparison').innerHTML = '';
+        }
+
+        // ===== 自适应重绘 =====
+        var resizeTimer = null;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(renderPegs, 150);
+        });
+
+        // ===== 启动 =====
+        initGame();
+    </script>
+</body>
+
+</html>
