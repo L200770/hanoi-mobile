@@ -1204,6 +1204,395 @@
             #moveList { max-height: 120px; }
             .status-bar { flex-wrap: wrap; gap: 12px; }
         }
+
+        /* 手机横屏：浏览器工具栏会压缩可用高度，因此改为双栏紧凑布局。 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            html,
+            body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            body {
+                display: block;
+            }
+
+            .game-container {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 220px;
+                grid-template-rows: 28px 46px 20px minmax(0, 1fr);
+                gap: 4px 8px;
+                width: 100%;
+                height: 100dvh;
+                margin: 0;
+                padding: 4px 8px 6px;
+            }
+
+            .game-header {
+                grid-column: 1 / -1;
+                grid-row: 1;
+                align-self: center;
+                padding: 0;
+            }
+
+            .game-header h1 {
+                font-size: 20px;
+                line-height: 26px;
+                letter-spacing: 1px;
+            }
+
+            .game-header .subtitle {
+                display: none;
+            }
+
+            .control-panel {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                flex-direction: row;
+                flex-wrap: nowrap;
+                align-items: center;
+                gap: 6px;
+                min-width: 0;
+                margin: 0;
+                padding: 5px 7px;
+                border-radius: 12px;
+            }
+
+            .config {
+                flex: 1 1 auto;
+                flex-wrap: nowrap;
+                justify-content: flex-start;
+                gap: 5px;
+                min-width: 0;
+            }
+
+            .config > label {
+                font-size: 12px;
+            }
+
+            .disk-chips {
+                flex-wrap: nowrap;
+                gap: 3px;
+            }
+
+            .disk-chip {
+                width: 28px;
+                height: 28px;
+                border-radius: 8px;
+                font-size: 12px;
+            }
+
+            .number-input {
+                height: 30px;
+                border-radius: 8px;
+            }
+
+            .number-input button {
+                width: 26px;
+                font-size: 16px;
+            }
+
+            .number-input input {
+                width: 28px;
+                font-size: 12px;
+            }
+
+            .buttons {
+                flex: 0 0 auto;
+                gap: 4px;
+            }
+
+            .btn {
+                min-height: 34px;
+                padding: 5px 9px;
+                border-radius: 9px;
+                font-size: 11px;
+                letter-spacing: 0;
+                white-space: nowrap;
+            }
+
+            .btn .ico {
+                font-size: 12px;
+            }
+
+            .center {
+                grid-column: 2;
+                grid-row: 3 / 5;
+                flex-direction: column;
+                gap: 4px;
+                min-height: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            .game-rules,
+            .move-history {
+                min-width: 0;
+                min-height: 0;
+                padding: 6px 8px;
+                border-radius: 10px;
+                line-height: 1.35;
+            }
+
+            .game-rules {
+                flex: 0 0 auto;
+            }
+
+            .game-rules summary,
+            .move-history h3 {
+                margin-bottom: 3px;
+                font-size: 11px;
+            }
+
+            .game-rules ul {
+                padding-left: 14px;
+                font-size: 10px;
+                line-height: 1.35;
+            }
+
+            .game-rules li {
+                margin: 1px 0;
+            }
+
+            .move-history {
+                flex: 1 1 auto;
+                overflow: hidden;
+            }
+
+            .all-history {
+                top: 6px;
+                right: 7px;
+                font-size: 10px;
+            }
+
+            #moveList {
+                max-height: none;
+                overflow-y: auto;
+                font-size: 10px;
+                line-height: 1.4;
+            }
+
+            .status-bar {
+                grid-column: 1;
+                grid-row: 3;
+                justify-content: center;
+                gap: 12px;
+                margin: 0;
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            .pegs-container {
+                grid-column: 1;
+                grid-row: 4;
+                min-height: 0;
+                margin: 0;
+                padding: 4px 8px 5px;
+                border-radius: 12px;
+            }
+
+            .peg-container {
+                min-width: 0;
+                min-height: 0;
+                padding: 2px 2px 0;
+            }
+
+            .peg {
+                width: 12px;
+                height: 130px !important;
+            }
+
+            .peg-container .peg-label {
+                margin-top: 2px;
+                font-size: 12px;
+                line-height: 14px;
+            }
+
+            .peg::after {
+                bottom: -7px;
+                height: 7px;
+                max-width: calc((100vw - 270px) / 3);
+            }
+
+            .peg .disk {
+                height: 17px !important;
+                margin-top: 1px;
+                max-width: calc((100vw - 270px) / 3);
+                border-radius: 7px;
+                font-size: 10px;
+                line-height: 17px !important;
+            }
+
+            .tutorial-layer {
+                padding: 6px;
+                overflow: hidden;
+            }
+
+            .modal-content.tutorial-content {
+                display: grid;
+                grid-template-columns: minmax(210px, .9fr) minmax(0, 1.2fr);
+                grid-template-rows: 24px 16px auto minmax(0, 1fr) 18px 42px;
+                gap: 4px 8px;
+                width: min(960px, calc(100vw - 12px));
+                height: calc(100dvh - 12px);
+                max-height: none;
+                padding: 10px 38px 8px 10px;
+                overflow: hidden;
+                border-radius: 14px;
+                text-align: left;
+            }
+
+            .tutorial-content h2 {
+                grid-column: 1;
+                grid-row: 1;
+                margin: 0;
+                font-size: 17px;
+                line-height: 24px;
+            }
+
+            .tutorial-lead {
+                grid-column: 1;
+                grid-row: 2;
+                margin: 0;
+                font-size: 10px;
+                line-height: 16px;
+            }
+
+            .tutorial-steps {
+                grid-column: 1;
+                grid-row: 3;
+                grid-template-columns: 1fr;
+                gap: 3px;
+                margin: 0;
+            }
+
+            .tutorial-step {
+                padding: 4px 6px;
+                border-radius: 7px;
+                font-size: 11px;
+                line-height: 15px;
+            }
+
+            .tutorial-step br {
+                display: none;
+            }
+
+            .tutorial-step b {
+                margin-right: 5px;
+            }
+
+            .tutorial-recurrence {
+                grid-column: 1;
+                grid-row: 4;
+                align-self: start;
+                margin: 0;
+                padding: 5px 6px;
+                font-size: 11px;
+                line-height: 1.35;
+            }
+
+            .tutorial-stage {
+                grid-column: 2;
+                grid-row: 1 / 6;
+                display: flex;
+                align-items: stretch;
+                min-height: 0;
+                margin: 0;
+                padding: 4px;
+            }
+
+            .tutorial-pegs {
+                flex: 1;
+                min-height: 0;
+                padding: 0;
+            }
+
+            .tutorial-peg-wrap {
+                min-width: 0;
+                min-height: 0;
+                padding: 2px 1px;
+            }
+
+            .tutorial-peg-wrap .peg {
+                width: 10px;
+                height: 140px !important;
+            }
+
+            .tutorial-peg-wrap .disk {
+                height: 16px !important;
+                margin-top: 1px;
+                max-width: 90px;
+                border-radius: 7px;
+                font-size: 10px;
+                line-height: 16px !important;
+            }
+
+            .tutorial-peg-wrap .peg-label {
+                margin-top: 2px;
+                font-size: 11px;
+                line-height: 14px;
+            }
+
+            .tutorial-status {
+                grid-column: 1;
+                grid-row: 5;
+                margin: 0;
+                font-size: 10px;
+                line-height: 18px;
+            }
+
+            .tutorial-phase {
+                grid-column: 1;
+                grid-row: 6;
+                align-self: center;
+                min-height: 0;
+                max-height: 42px;
+                margin: 0;
+                overflow-y: auto;
+                font-size: 11px;
+                line-height: 1.2;
+            }
+
+            .tutorial-controls {
+                grid-column: 2;
+                grid-row: 6;
+                align-self: center;
+                gap: 4px;
+                margin: 0;
+            }
+
+            .tutorial-controls button {
+                min-width: 0;
+                min-height: 34px;
+                padding: 6px 3px;
+                border-radius: 8px;
+                font-size: 10px;
+            }
+
+            .tutorial-content .modal-close {
+                top: 5px;
+                right: 7px;
+                width: 26px;
+                height: 26px;
+                font-size: 20px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) and (max-width: 740px) {
+            .game-container {
+                grid-template-columns: minmax(0, 1fr) 190px;
+            }
+
+            .config > label,
+            .number-input {
+                display: none;
+            }
+
+            .btn {
+                padding-right: 7px;
+                padding-left: 7px;
+            }
+        }
     </style>
 </head>
 
